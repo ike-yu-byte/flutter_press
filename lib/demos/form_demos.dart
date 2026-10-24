@@ -562,22 +562,18 @@ class _RadioBasicDemoState extends State<RadioBasicDemo> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Radio<String>(
-            value: 'male',
-            groupValue: _gender,
-            onChanged: (v) => setState(() => _gender = v),
-          ),
-          const Text('男'),
-          Radio<String>(
-            value: 'female',
-            groupValue: _gender,
-            onChanged: (v) => setState(() => _gender = v),
-          ),
-          const Text('女'),
-        ],
+      child: RadioGroup<String>(
+        groupValue: _gender,
+        onChanged: (v) => setState(() => _gender = v),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Radio<String>(value: 'male'),
+            Text('男'),
+            Radio<String>(value: 'female'),
+            Text('女'),
+          ],
+        ),
       ),
     );
   }
@@ -599,31 +595,29 @@ class _RadioListTileDemoState extends State<RadioListTileDemo> {
     return Center(
       child: SizedBox(
         width: 300,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<String>(
-              title: const Text('微信支付'),
-              secondary: const Icon(Icons.chat),
-              value: 'wechat',
-              groupValue: _pay,
-              onChanged: (v) => setState(() => _pay = v!),
-            ),
-            RadioListTile<String>(
-              title: const Text('支付宝'),
-              secondary: const Icon(Icons.account_balance),
-              value: 'alipay',
-              groupValue: _pay,
-              onChanged: (v) => setState(() => _pay = v!),
-            ),
-            RadioListTile<String>(
-              title: const Text('银行卡'),
-              secondary: const Icon(Icons.credit_card),
-              value: 'bank',
-              groupValue: _pay,
-              onChanged: (v) => setState(() => _pay = v!),
-            ),
-          ],
+        child: RadioGroup<String>(
+          groupValue: _pay,
+          onChanged: (v) => setState(() => _pay = v!),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              RadioListTile<String>(
+                title: Text('微信支付'),
+                secondary: Icon(Icons.chat),
+                value: 'wechat',
+              ),
+              RadioListTile<String>(
+                title: Text('支付宝'),
+                secondary: Icon(Icons.account_balance),
+                value: 'alipay',
+              ),
+              RadioListTile<String>(
+                title: Text('银行卡'),
+                secondary: Icon(Icons.credit_card),
+                value: 'bank',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -649,13 +643,20 @@ class _RadioEnumDemoState extends State<RadioEnumDemo> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (final (i, label) in const ['标准配送', '加急配送', '当日达'].indexed)
-            RadioListTile<DeliverySpeed>(
-              title: Text(label),
-              value: DeliverySpeed.values[i],
-              groupValue: _speed,
-              onChanged: (v) => setState(() => _speed = v!),
+          RadioGroup<DeliverySpeed>(
+            groupValue: _speed,
+            onChanged: (v) => setState(() => _speed = v!),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final (i, label) in const ['标准配送', '加急配送', '当日达'].indexed)
+                  RadioListTile<DeliverySpeed>(
+                    title: Text(label),
+                    value: DeliverySpeed.values[i],
+                  ),
+              ],
             ),
+          ),
           const SizedBox(height: 8),
           Text('当前：${_speed.name}'),
         ],
@@ -664,7 +665,7 @@ class _RadioEnumDemoState extends State<RadioEnumDemo> {
   }
 }
 
-/// 示例: radio-disabled —— onChanged 传 null 该项不可选
+/// 示例: radio-disabled —— enabled: false 该项不可选
 class RadioDisabledDemo extends StatefulWidget {
   const RadioDisabledDemo({super.key});
 
@@ -678,22 +679,16 @@ class _RadioDisabledDemoState extends State<RadioDisabledDemo> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          RadioListTile<int>(
-            title: const Text('可选项'),
-            value: 0,
-            groupValue: _selected,
-            onChanged: (v) => setState(() => _selected = v!),
-          ),
-          RadioListTile<int>(
-            title: const Text('售罄，不可选'),
-            value: 1,
-            groupValue: _selected,
-            onChanged: null,
-          ),
-        ],
+      child: RadioGroup<int>(
+        groupValue: _selected,
+        onChanged: (v) => setState(() => _selected = v!),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            RadioListTile<int>(title: Text('可选项'), value: 0),
+            RadioListTile<int>(title: Text('售罄，不可选'), value: 1, enabled: false),
+          ],
+        ),
       ),
     );
   }
@@ -736,7 +731,7 @@ final List<DemoCase> kRadioCases = <DemoCase>[
   DemoCase(
     id: 'radio-basic',
     title: '基础单选',
-    description: '共享同一 groupValue 实现互斥。',
+    description: 'RadioGroup 接管组值，子项只写 value。',
     builder: (_) => const RadioBasicDemo(),
   ),
   DemoCase(
@@ -754,7 +749,7 @@ final List<DemoCase> kRadioCases = <DemoCase>[
   DemoCase(
     id: 'radio-disabled',
     title: '禁用单项',
-    description: 'onChanged 传 null 该项不可选。',
+    description: 'enabled: false 让该项不可选。',
     builder: (_) => const RadioDisabledDemo(),
   ),
   DemoCase(
@@ -1597,7 +1592,7 @@ final ComponentGroup kFormGroup = ComponentGroup(
       name: 'Radio 单选框',
       route: '/components/radio',
       kind: 'StatefulWidget',
-      intro: 'Radio 用于一组互斥选项里选一个，靠共享同一 groupValue 实现互斥。',
+      intro: 'Radio 用于一组互斥选项里选一个，Flutter 3.32+ 用祖先 RadioGroup 统一接管组状态。',
       cases: kRadioCases,
     ),
     ComponentInfo(
