@@ -765,6 +765,199 @@ final List<DemoCase> kExpandedCases = <DemoCase>[
 ];
 
 // =====================================================================
+// SafeArea 安全区
+// =====================================================================
+
+/// 示例: safearea-basic —— 用假造的刘海/手势条演示内容内缩
+class SafeAreaBasicDemo extends StatelessWidget {
+  const SafeAreaBasicDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // 模拟一台上下左右各有“不安全区”的设备
+    const fake = EdgeInsets.fromLTRB(20, 36, 20, 36);
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(padding: fake, viewPadding: fake),
+      child: Container(
+        color: Colors.blueGrey, // 危险区露出的底色
+        child: const SafeArea(
+          child: ColoredBox(
+            color: Colors.white,
+            child: Center(child: Text('内容被 SafeArea 推入安全区内')),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 示例: safearea-edges —— top/bottom/left/right 开关控制哪几边内缩
+class SafeAreaEdgesDemo extends StatelessWidget {
+  const SafeAreaEdgesDemo({super.key});
+
+  static Widget _cell(String label, bool allEdges) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(fontSize: 12)),
+        const SizedBox(height: 4),
+        Expanded(
+          child: Container(
+            color: Colors.blueGrey,
+            child: SafeArea(
+              top: allEdges,
+              bottom: allEdges,
+              child: const ColoredBox(color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const fake = EdgeInsets.fromLTRB(16, 32, 16, 32);
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(padding: fake, viewPadding: fake),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          children: [
+            Expanded(child: _cell('四边都缩', true)),
+            const SizedBox(width: 8),
+            Expanded(child: _cell('上下不缩', false)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+final List<DemoCase> kSafeAreaCases = <DemoCase>[
+  DemoCase(
+    id: 'safearea-basic',
+    title: '基本内缩',
+    description: '把内容推入系统安全区，避开刘海/手势条（此处假造 padding 演示）。',
+    previewFill: true,
+    builder: (_) => const SafeAreaBasicDemo(),
+  ),
+  DemoCase(
+    id: 'safearea-edges',
+    title: '按边开关',
+    description: 'top/bottom/left/right=false 让该边不内缩；minimum 可再留额外间距。',
+    previewFill: true,
+    builder: (_) => const SafeAreaEdgesDemo(),
+  ),
+];
+
+// =====================================================================
+// Table 表格
+// =====================================================================
+
+/// 示例: table-basic —— 三行三列基础表格
+class TableBasicDemo extends StatelessWidget {
+  const TableBasicDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget cell(String text) => Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(text),
+        );
+    return Center(
+      child: Table(
+        border: TableBorder.all(color: Colors.blueGrey.shade300),
+        children: [
+          TableRow(children: [cell('姓名'), cell('角色'), cell('状态')]),
+          TableRow(children: [cell('张三'), cell('开发'), cell('在职')]),
+          TableRow(children: [cell('李四'), cell('设计'), cell('休假')]),
+        ],
+      ),
+    );
+  }
+}
+
+/// 示例: table-column-width —— columnWidths 指定各列宽
+class TableColumnWidthDemo extends StatelessWidget {
+  const TableColumnWidthDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget cell(String text) => Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(text),
+        );
+    return Center(
+      child: Table(
+        border: TableBorder.all(color: Colors.blueGrey.shade300),
+        defaultColumnWidth: const FlexColumnWidth(), // 未指定列按 flex 平分剩余宽
+        columnWidths: const {
+          0: FixedColumnWidth(90),
+          1: FlexColumnWidth(2),
+          2: FlexColumnWidth(1),
+        },
+        children: [
+          TableRow(children: [cell('固定90'), cell('Flex 2'), cell('Flex 1')]),
+          TableRow(children: [cell('A'), cell('较长内容占据更多空间'), cell('B')]),
+        ],
+      ),
+    );
+  }
+}
+
+/// 示例: table-border-padding —— 自定义边框与单元格内边距
+class TableBorderPaddingDemo extends StatelessWidget {
+  const TableBorderPaddingDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget cell(String text, {bool header = false}) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Text(
+            text,
+            style: TextStyle(fontWeight: header ? FontWeight.bold : FontWeight.normal),
+          ),
+        );
+    return Center(
+      child: Table(
+        border: const TableBorder(
+          top: BorderSide(color: Colors.grey),
+          bottom: BorderSide(color: Colors.grey),
+          horizontalInside: BorderSide(color: Colors.grey, width: 0.5),
+        ),
+        defaultColumnWidth: const FlexColumnWidth(),
+        children: [
+          TableRow(children: [cell('课程', header: true), cell('学时', header: true)]),
+          TableRow(children: [cell('Flutter 基础'), cell('24')]),
+          TableRow(children: [cell('Dart 进阶'), cell('16')]),
+        ],
+      ),
+    );
+  }
+}
+
+final List<DemoCase> kTableCases = <DemoCase>[
+  DemoCase(
+    id: 'table-basic',
+    title: '基础表格',
+    description: 'Table + TableRow + TableCell，border 画网格线。',
+    builder: (_) => const TableBasicDemo(),
+  ),
+  DemoCase(
+    id: 'table-column-width',
+    title: '列宽控制',
+    description: 'columnWidths 用 Fixed/Flex/Fraction 指定每列宽度。',
+    builder: (_) => const TableColumnWidthDemo(),
+  ),
+  DemoCase(
+    id: 'table-border-padding',
+    title: '边框与内边距',
+    description: 'TableBorder 只画部分边，内层 Padding 控制留白。',
+    builder: (_) => const TableBorderPaddingDemo(),
+  ),
+];
+
+// =====================================================================
 // 分组装配
 // =====================================================================
 
@@ -820,6 +1013,20 @@ final ComponentGroup kLayoutGroup = ComponentGroup(
       kind: 'StatelessWidget',
       intro: 'Expanded 和 Flexible 只能作为 Row/Column/Flex 的直接子，按比例分配主轴剩余空间。',
       cases: kExpandedCases,
+    ),
+    ComponentInfo(
+      name: 'SafeArea 安全区',
+      route: '/components/safearea',
+      kind: 'StatelessWidget',
+      intro: 'SafeArea 用 MediaQuery.padding 把内容从刘海、手势条等系统“不安全区”往里推，避免被遮挡。',
+      cases: kSafeAreaCases,
+    ),
+    ComponentInfo(
+      name: 'Table 表格',
+      route: '/components/table',
+      kind: 'StatelessWidget',
+      intro: 'Table 用 TableRow / TableCell 组出行列对齐的网格，列宽由 columnWidths 精确控制。',
+      cases: kTableCases,
     ),
   ],
 );

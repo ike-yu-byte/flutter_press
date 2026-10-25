@@ -287,6 +287,37 @@ class ButtonStyleFromDemo extends StatelessWidget {
   }
 }
 
+/// 示例: button-radius —— shape + BorderRadius 调整圆角弧度
+class ButtonRadiusDemo extends StatelessWidget {
+  const ButtonRadiusDemo({super.key});
+
+  FilledButton _make(String label, BorderRadius radius) => FilledButton(
+        onPressed: () {},
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: radius),
+        ),
+        child: Text(label),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        alignment: WrapAlignment.center,
+        children: [
+          _make('直角', BorderRadius.zero),
+          _make('小圆角', BorderRadius.circular(8)),
+          _make('大圆角', BorderRadius.circular(20)),
+          _make('胶囊', BorderRadius.circular(999)),
+          _make('仅左上圆', const BorderRadius.only(topLeft: Radius.circular(24))),
+        ],
+      ),
+    );
+  }
+}
+
 /// 示例: button-state-style —— WidgetStateProperty 分状态配色
 class ButtonStateStyleDemo extends StatelessWidget {
   const ButtonStateStyleDemo({super.key});
@@ -346,6 +377,12 @@ final List<DemoCase> kButtonCases = <DemoCase>[
     title: '自定义样式',
     description: 'styleFrom() 改颜色 / 尺寸 / 圆角。',
     builder: (_) => const ButtonStyleFromDemo(),
+  ),
+  DemoCase(
+    id: 'button-radius',
+    title: '圆角弧度',
+    description: 'shape + BorderRadius 控制圆角：zero / circular / 胶囊 / 单角。',
+    builder: (_) => const ButtonRadiusDemo(),
   ),
   DemoCase(
     id: 'button-state-style',

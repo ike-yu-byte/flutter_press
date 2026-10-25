@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../models/demo_models.dart';
@@ -283,43 +285,137 @@ class _SnackBarUndoDemoState extends State<SnackBarUndoDemo> {
   }
 }
 
-/// 示例: snackbar-styles —— 三种外观对比
-class SnackBarStylesDemo extends StatelessWidget {
+/// 示例: snackbar-styles —— 三种样式 + 顶部/居中两种位置
+class SnackBarStylesDemo extends StatefulWidget {
   const SnackBarStylesDemo({super.key});
 
   @override
+  State<SnackBarStylesDemo> createState() => _SnackBarStylesDemoState();
+}
+
+class _SnackBarStylesDemoState extends State<SnackBarStylesDemo> {
+  bool _showCenter = false;
+  Timer? _timer;
+
+  void _showCenterToast() {
+    _timer?.cancel();
+    setState(() => _showCenter = true);
+    _timer = Timer(const Duration(milliseconds: 1600), () {
+      if (mounted) setState(() => _showCenter = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    void show(SnackBar bar) => ScaffoldMessenger.of(context).showSnackBar(bar);
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          OutlinedButton(
-            onPressed: () => show(const SnackBar(
-              content: Text('贴底常规样式'),
-              backgroundColor: Colors.teal,
-            )),
-            child: const Text('底部贴边'),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: () => show(const SnackBar(
-              content: Text('floating 会浮起留边'),
-              behavior: SnackBarBehavior.floating,
-              margin: EdgeInsets.all(16),
-            )),
-            child: const Text('浮动样式'),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: () => show(const SnackBar(
-              content: Row(children: [Icon(Icons.error, color: Colors.white), SizedBox(width: 8), Text('操作失败')]),
-              backgroundColor: Colors.redAccent,
-              behavior: SnackBarBehavior.floating,
-            )),
-            child: const Text('错误红色'),
-          ),
-        ],
+    // 局部 ScaffoldMessenger + Scaffold：让提示落在预览框内而非整屏底部
+    return ScaffoldMessenger(
+      child: Scaffold(
+        body: Builder(
+          builder: (context) {
+            final messenger = ScaffoldMessenger.of(context);
+            return Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // —— 样式（都贴底）——
+                        OutlinedButton(
+                          onPressed: () {
+                            messenger
+                              ..clearSnackBars()
+                              ..showSnackBar(const SnackBar(
+                                content: Text('贴底常规样式'),
+                                backgroundColor: Colors.teal,
+                              ));
+                          },
+                          child: const Text('底部贴边'),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton(
+                          onPressed: () {
+                            messenger
+                              ..clearSnackBars()
+                              ..showSnackBar(const SnackBar(
+                                content: Text('floating 会浮起留边'),
+                                behavior: SnackBarBehavior.floating,
+                                margin: EdgeInsets.all(16),
+                              ));
+                          },
+                          child: const Text('浮动样式'),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton(
+                          onPressed: () {
+                            messenger
+                              ..clearSnackBars()
+                              ..showSnackBar(const SnackBar(
+                                content: Row(children: [Icon(Icons.error, color: Colors.white), SizedBox(width: 8), Text('操作失败')]),
+                                backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
+                              ));
+                          },
+                          child: const Text('错误红色'),
+                        ),
+                        const SizedBox(height: 8),
+                        // —— 位置（顶部 / 居中）——
+                        OutlinedButton(
+                          onPressed: () {
+                            messenger
+                              ..clearMaterialBanners()
+                              ..showMaterialBanner(MaterialBanner(
+                                content: const Text('要顶部提示请用 MaterialBanner'),
+                                leading: const Icon(Icons.info, color: Colors.blue),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => messenger.clearMaterialBanners(),
+                                    child: const Text('关闭'),
+                                  ),
+                                ],
+                              ));
+                          },
+                          child: const Text('顶部 · MaterialBanner'),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton(
+                          onPressed: _showCenterToast,
+                          child: const Text('居中 · 自定义 Toast'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (_showCenter)
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.black87,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.white, size: 20),
+                          SizedBox(width: 8),
+                          Text('居中自定义提示', style: TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -361,7 +457,9 @@ final List<DemoCase> kSnackBarCases = <DemoCase>[
   DemoCase(
     id: 'snackbar-styles',
     title: '样式与位置',
-    description: 'floating 浮起、backgroundColor 语义色。',
+    description: '贴底/浮动/语义色三种样式，外加顶部、居中两种位置。',
+    previewFill: true,
+    previewHeight: 420,
     builder: (_) => const SnackBarStylesDemo(),
   ),
   DemoCase(

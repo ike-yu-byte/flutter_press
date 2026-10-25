@@ -448,6 +448,52 @@ class _CheckboxGroupDemoState extends State<CheckboxGroupDemo> {
   }
 }
 
+/// 示例: checkbox-inline —— 水平排列的多选标签
+class CheckboxInlineDemo extends StatefulWidget {
+  const CheckboxInlineDemo({super.key});
+
+  @override
+  State<CheckboxInlineDemo> createState() => _CheckboxInlineDemoState();
+}
+
+class _CheckboxInlineDemoState extends State<CheckboxInlineDemo> {
+  final _options = ['微信', '支付宝', '银行卡', 'PayPal'];
+  final _selected = <String>{'微信'};
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            alignment: WrapAlignment.center,
+            children: [
+              for (final opt in _options)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Checkbox(
+                      value: _selected.contains(opt),
+                      onChanged: (v) => setState(() {
+                        v == true ? _selected.add(opt) : _selected.remove(opt);
+                      }),
+                    ),
+                    Text(opt),
+                  ],
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text('已选：${_selected.join('、')}'),
+        ],
+      ),
+    );
+  }
+}
+
 /// 示例: checkbox-tristate —— 全选框三态联动子项
 class CheckboxTristateDemo extends StatefulWidget {
   const CheckboxTristateDemo({super.key});
@@ -529,6 +575,12 @@ final List<DemoCase> kCheckboxCases = <DemoCase>[
     title: '多选组',
     description: '一组独立选项，value 存进 Set 管理。',
     builder: (_) => const CheckboxGroupDemo(),
+  ),
+  DemoCase(
+    id: 'checkbox-inline',
+    title: '水平排列',
+    description: '多个 Checkbox 用 Row / Wrap 横向排成一行。',
+    builder: (_) => const CheckboxInlineDemo(),
   ),
   DemoCase(
     id: 'checkbox-tristate',
