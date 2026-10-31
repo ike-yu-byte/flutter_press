@@ -1,0 +1,49 @@
+# Workflow 名称，会显示在仓库 Actions 标签页里
+name: Deploy Flutter Web to GitHub Pages
+
+# 什么时候触发这个工作流
+on:
+  push:
+    branches: [master]   # 方式1：push 到 master 分支时自动触发（你的默认分支是 master）
+  workflow_dispatch:     # 方式2：允许在 Actions 页面手动点 “Run workflow” 触发
+
+# 给 GITHUB_TOKEN 授权，否则无法部署到 Pages
+permissions:
+  contents: read      # 读取仓库代码（checkout 用）
+  pages: write        # 允许把构建产物发布到 GitHub Pages
+  id-token: write     # 允许 OIDC 鉴权（deploy-pages 用于安全验证身份）
+
+# 并发控制：同一时间只跑一个部署，新的会取消旧的，避免多次 push 时部署互相打架
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+# 定义任务（这里拆成 build 构建 和 deploy 发布 两个 job）
+jobs:
+  build:                       # 第一个 job：构建 Flutter Web
+    runs-on: ubuntu-latest     # 在最新的 Ubuntu 云主机上运行
+    steps:
+      - uses: actions/checkout@v4          # 拉取仓库代码到工作区
+
+      - uses: subosito/flutter-action@v2   # 安装 Flutter 环境
+        with:
+          channel: stable                  # 用最新 stable，需满足 pubspec 的 sdk ^3.11.1
+          cache: true                      # 缓存依赖，加速后续构建
+
+      - run: flutter pub get               # 安装 Dart/Flutter 依赖
+      - run: flutter build web --release --base-href="/flutter_press/"  # 打包 Web，base-href 适配 GitHub Pages 子路径
+
+      - uses: actions/configure-pages@v5   # 启用并配置 GitHub Pages 发布环境
+      - uses: actions/upload-pages-artifact@v3  # 把构建产物打包成 artifact 上传，供下一步发布
+        with:
+          path: build/web                  # 要上传的目录（即 flutter build web 的输出）
+
+  deploy:                      # 第二个 job：正式发布到 Pages
+    needs: build               # 必须先等 build 成功完成
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages       # 关联到仓库的 github-pages 环境
+      url: ${{ steps.deployment.outputs.page_url }}  # 部署成功后回显访问地址
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4      # 把上传的 artifact 真正发布到 GitHub Pages
