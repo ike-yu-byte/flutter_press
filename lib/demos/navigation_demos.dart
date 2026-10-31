@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/demo_models.dart';
+import '../models/demo_models.dart'
+    show ComponentGroup, ComponentInfo, DemoCase;
 
 // =====================================================================
 // Scaffold 页面脚手架

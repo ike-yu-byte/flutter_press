@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/demo_models.dart';
+import '../models/demo_models.dart' show DemoCase;
 
 /// 单个案例的展示卡片：标题 + 说明 + 预览区。
 /// 预览区用一个带边框的容器承载演示 Widget，方便将来嵌入文档预览。

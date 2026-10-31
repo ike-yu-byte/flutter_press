@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/demo_models.dart';
-import 'demo_case_card.dart';
+import '../models/demo_models.dart' show ComponentInfo;
+import 'demo_case_card.dart' show DemoCaseCard;
 
 /// 通用组件详情页：按文档顺序渲染该组件的全部案例。
 class ComponentPage extends StatelessWidget {

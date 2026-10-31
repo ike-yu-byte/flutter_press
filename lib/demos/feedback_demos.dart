@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../models/demo_models.dart';
+import '../models/demo_models.dart'
+    show ComponentGroup, ComponentInfo, DemoCase;
 
 // =====================================================================
 // AlertDialog 对话框

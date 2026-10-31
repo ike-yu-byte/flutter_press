@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/demo_models.dart';
-import '../registry/registry.dart';
+import '../models/demo_models.dart' show ComponentGroup, ComponentInfo;
+import '../registry/registry.dart' show kAllGroups;
 
 /// 总汇总首页：按分组列出所有组件，点击进入对应案例页。
 class HomePage extends StatelessWidget {

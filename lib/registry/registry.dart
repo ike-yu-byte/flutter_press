@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../models/demo_models.dart';
-import '../widgets/component_page.dart';
-import '../demos/basic_demos.dart';
-import '../demos/layout_demos.dart';
-import '../demos/scroll_list_demos.dart';
-import '../demos/form_demos.dart';
-import '../demos/navigation_demos.dart';
-import '../demos/feedback_demos.dart';
-import '../demos/animation_demos.dart';
-import '../demos/gesture_demos.dart';
+import '../models/demo_models.dart' show ComponentGroup, ComponentInfo;
+import '../widgets/component_page.dart' show ComponentPage;
+import '../demos/basic_demos.dart' show kBasicGroup;
+import '../demos/layout_demos.dart' show kLayoutGroup;
+import '../demos/scroll_list_demos.dart' show kScrollListGroup;
+import '../demos/form_demos.dart' show kFormGroup;
+import '../demos/navigation_demos.dart' show kNavigationGroup;
+import '../demos/feedback_demos.dart' show kFeedbackGroup;
+import '../demos/animation_demos.dart' show kAnimationGroup;
+import '../demos/gesture_demos.dart' show kGestureGroup;
 
 /// 全部分组，顺序与文档侧边栏一致。
 final List<ComponentGroup> kAllGroups = <ComponentGroup>[
